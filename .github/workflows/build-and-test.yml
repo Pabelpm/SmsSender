@@ -30,5 +30,24 @@ jobs:
       - name: Setup gradle
         uses: gradle/actions/setup-gradle@v3
 
-      - name: Build proyect
+      - name: Build project
         run: ./gradlew build
+
+  test: 
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4.5.0
+        with: 
+          java-version: 17
+          distribution: "temurin"
+          cache: gradle
+
+      - name: Setup gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Unit test
+        run: ./gradlew test
