@@ -1,4 +1,4 @@
-package com.pabloprieto.smssender
+package com.pabloprieto.smssender.ui
 
 import android.Manifest
 import android.annotation.SuppressLint
