@@ -32,57 +32,62 @@ import androidx.core.content.ContextCompat
 import com.pabloprieto.smssender.ui.theme.SmsSenderTheme
 
 class MainActivity : ComponentActivity() {
-    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            var permissionStatus by remember { mutableStateOf("Permission not requested") }
-            val permissionLauncher =
-                rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) { granted ->
-                    permissionStatus = if (granted) "Permission granted" else "Permission denied"
+            HomeScreen()
+        }
+    }
+}
 
+@Composable
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+fun HomeScreen () {
+    var permissionStatus by remember { mutableStateOf("Permission not requested") }
+    val permissionLauncher =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) { granted ->
+            permissionStatus = if (granted) "Permission granted" else "Permission denied"
+
+        }
+    SmsSenderTheme {
+        Scaffold(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                val granted: Boolean = ContextCompat.checkSelfPermission(
+                    LocalContext.current,
+                    Manifest.permission.SEND_SMS
+                ) == PackageManager.PERMISSION_GRANTED
+                permissionStatus = if (granted) "Permission granted" else "Permission denied"
+                Button(
+                    onClick = { permissionLauncher.launch(Manifest.permission.SEND_SMS) },
+                    enabled = !granted
+                ) {
+                    TextM(text = "Request permission")
                 }
-            SmsSenderTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .fillMaxWidth(),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        val granted: Boolean = ContextCompat.checkSelfPermission(
-                            LocalContext.current,
-                            Manifest.permission.SEND_SMS
-                        ) == PackageManager.PERMISSION_GRANTED
-                        permissionStatus = if (granted) "Permission granted" else "Permission denied"
-                        Button(
-                            onClick = { permissionLauncher.launch(Manifest.permission.SEND_SMS) },
-                            enabled = !granted
-                        ) {
-                            TextM(text = "Request permission")
-                        }
-                        TextM(text = permissionStatus)
+                TextM(text = permissionStatus)
 
-                        Button(
-                            modifier = Modifier.padding(top= 32.dp),
-                            onClick = {                             },
-                            enabled = granted
-                        ) {
-                            TextM(text = "Get all phone numbers and send sms")
-                        }
-                    }
+                Button(
+                    modifier = Modifier.padding(top= 32.dp),
+                    onClick = {                             },
+                    enabled = granted
+                ) {
+                    TextM(text = "Get all phone numbers and send sms")
                 }
             }
         }
     }
 }
 
-
 @Preview(showBackground = true)
 @Composable
 fun Preview() {
     SmsSenderTheme {
+        HomeScreen()
     }
 }
