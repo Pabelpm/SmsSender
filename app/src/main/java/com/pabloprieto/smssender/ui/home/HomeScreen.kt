@@ -28,20 +28,15 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.pabloprieto.smssender.ui.theme.SmsSenderTheme
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun HomeScreen(
     vm: HomeViewModel = viewModel { HomeViewModel() }
 ) {
-    HomeScreen()
-}
-
-@Composable
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-fun HomeScreen () {
-    var permissionStatus by remember { mutableStateOf("Permission not requested") }
+    var permissionStatus by remember { mutableStateOf(SMSPermission.PERMISSION_NOT_REQUESTED) }
     val permissionLauncher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) { granted ->
-            permissionStatus = if (granted) "Permission granted" else "Permission denied"
+            permissionStatus = if (granted) SMSPermission.PERMISSION_GRANTED else SMSPermission.PERMISSION_DENIED
 
         }
     SmsSenderTheme {
@@ -57,14 +52,14 @@ fun HomeScreen () {
                     LocalContext.current,
                     Manifest.permission.SEND_SMS
                 ) == PackageManager.PERMISSION_GRANTED
-                permissionStatus = if (granted) "Permission granted" else "Permission denied"
+                permissionStatus = if (granted) SMSPermission.PERMISSION_GRANTED else SMSPermission.PERMISSION_DENIED
                 Button(
                     onClick = { permissionLauncher.launch(Manifest.permission.SEND_SMS) },
                     enabled = !granted
                 ) {
                     Text(text = "Request permission")
                 }
-                Text(text = permissionStatus)
+                Text(text = vm.getStringFromEnum(permissionStatus))
 
                 Button(
                     modifier = Modifier.padding(top= 32.dp),
@@ -75,8 +70,7 @@ fun HomeScreen () {
                 }
             }
         }
-    }
-}
+    }}
 
 @Preview(showBackground = true)
 @Composable
