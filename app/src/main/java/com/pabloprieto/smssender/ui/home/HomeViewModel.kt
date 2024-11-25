@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pabloprieto.smssender.data.PhoneNumber
+import com.pabloprieto.smssender.data.PhoneNumbersRepository
 import com.pabloprieto.smssender.data.fakeNumber
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -23,11 +24,13 @@ class HomeViewModel : ViewModel() {
     var state by mutableStateOf(UiState())
         private set
 
+    private val phoneNumbersRepository = PhoneNumbersRepository()
+
     fun clickRetrieveNumbers() {
         viewModelScope.launch {
             state = UiState(loading = true)
             delay(1000)
-            state = UiState(loading = false, phoneNumbers = arrayListOf(fakeNumber))
+            state = UiState(loading = false, phoneNumbers = phoneNumbersRepository.retrievePhoneNumbers())
         }
     }
 
