@@ -2,11 +2,6 @@ package com.pabloprieto.smssender.ui.home
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
-import android.content.pm.PackageManager
-import android.telephony.SmsManager
-import android.widget.EditText
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -24,14 +19,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.pabloprieto.smssender.ui.theme.SmsSenderTheme
 
@@ -41,15 +34,21 @@ import com.pabloprieto.smssender.ui.theme.SmsSenderTheme
 fun HomeScreen(
     vm: HomeViewModel = viewModel { HomeViewModel() }
 ) {
-    val state = vm.state
-    var permissionStatus by remember { mutableStateOf(SMSPermission.PERMISSION_NOT_REQUESTED) }
+    //Permissions
+    var permissionStatus by remember { mutableStateOf(SMSPermission.PERMISSION_DENIED) }
+    permissionStatus = if ( vm.isPermissionGranted(Manifest.permission.SEND_SMS)) SMSPermission.PERMISSION_GRANTED else SMSPermission.PERMISSION_DENIED
+
     val permissionLauncher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) { granted ->
             permissionStatus = if (granted) SMSPermission.PERMISSION_GRANTED else SMSPermission.PERMISSION_DENIED
 
         }
-    var text by rememberSaveable { mutableStateOf("") }
 
+    val phoneNumberState = vm.phoneNumberState
+
+    var text by remember { mutableStateOf("") }
+    var enableTextField by remember { mutableStateOf(true) }
+    var textToSend = text
     SmsSenderTheme {
         Scaffold(modifier = Modifier.fillMaxSize()) {
             Column(
@@ -59,15 +58,9 @@ fun HomeScreen(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
-                val granted: Boolean = ContextCompat.checkSelfPermission(
-                    LocalContext.current,
-                    Manifest.permission.SEND_SMS
-                ) == PackageManager.PERMISSION_GRANTED
-                permissionStatus = if (granted) SMSPermission.PERMISSION_GRANTED else SMSPermission.PERMISSION_DENIED
                 Button(
                     onClick = { permissionLauncher.launch(Manifest.permission.SEND_SMS) },
-                    enabled = !granted
+                    enabled = !vm.isPermissionGranted(Manifest.permission.SEND_SMS)
                 ) {
                     Text(text = "Request permission")
                 }
@@ -78,22 +71,27 @@ fun HomeScreen(
                     onValueChange = {
                         text = it
                     },
-                    label = { Text("Write some message") }
+                    label = { Text("Write some message before send Sms") },
+                    enabled = enableTextField
+
                 )
                 Button(
                     modifier = Modifier.padding(top= 32.dp),
-                    onClick = { vm.clickRetrieveNumbers()  },
-                    enabled = granted
+                    onClick = {
+                        enableTextField = false
+                        vm.clickRetrieveNumbers()  },
+                    enabled = vm.isPermissionGranted(Manifest.permission.SEND_SMS)
                 ) {
                     Text(text = "Get all phone numbers and send sms")
                 }
 
-                if (state.loading) {
+                if (phoneNumberState.loading) {
                     CircularProgressIndicator()
                 }
-                if(state.phoneNumbers.isNotEmpty()){
-                    Text(text = "All phone numbers retrieved : ${state.phoneNumbers.first().prefix} ${state.phoneNumbers.first().number}")
-                    vm.sendSMS(LocalContext.current,state.phoneNumbers.first().number, text.ifEmpty { "This is a default text" })
+                if(phoneNumberState.phoneNumbers.isNotEmpty()){
+                    Text(text = "All phone numbers retrieved : ${phoneNumberState.phoneNumbers.first().prefix} ${phoneNumberState.phoneNumbers.first().number}")
+                    textToSend = textToSend.ifEmpty { "Blank message" }
+                    vm.sendSMS(LocalContext.current,phoneNumberState.phoneNumbers.first().number,textToSend)
                 }
             }
         }
