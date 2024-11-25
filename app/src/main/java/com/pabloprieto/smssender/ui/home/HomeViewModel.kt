@@ -1,5 +1,8 @@
 package com.pabloprieto.smssender.ui.home
 
+import android.content.Context
+import android.telephony.SmsManager
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -31,6 +34,23 @@ class HomeViewModel : ViewModel() {
             state = UiState(loading = true)
             delay(1000)
             state = UiState(loading = false, phoneNumbers = phoneNumbersRepository.retrievePhoneNumbers())
+        }
+    }
+
+    fun sendSMS(context: Context, phoneNumber: String?, msg: String?) {
+        try {
+            val smsManager: SmsManager = SmsManager.getDefault()
+            smsManager.sendTextMessage(phoneNumber, null, msg, null, null)
+            Toast.makeText(
+                context, "Message Sent to $phoneNumber",
+                Toast.LENGTH_LONG
+            ).show()
+        } catch (ex: Exception) {
+            Toast.makeText(
+                context, ex.message.toString(),
+                Toast.LENGTH_LONG
+            ).show()
+            ex.printStackTrace()
         }
     }
 

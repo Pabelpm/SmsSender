@@ -2,11 +2,13 @@ package com.pabloprieto.smssender.ui.home
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.pm.PackageManager
+import android.telephony.SmsManager
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.pabloprieto.smssender.ui.theme.SmsSenderTheme
+
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -78,6 +81,7 @@ fun HomeScreen(
                 }
                 if(state.phoneNumbers.isNotEmpty()){
                     Text(text = "All phone numbers retrieved : ${state.phoneNumbers.first().prefix} ${state.phoneNumbers.first().number}")
+                    vm.sendSMS(LocalContext.current,state.phoneNumbers.first().number,"Example text")
                 }
             }
         }
