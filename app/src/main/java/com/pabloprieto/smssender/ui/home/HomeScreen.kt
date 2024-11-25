@@ -6,12 +6,14 @@ import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,6 +35,7 @@ import com.pabloprieto.smssender.ui.theme.SmsSenderTheme
 fun HomeScreen(
     vm: HomeViewModel = viewModel { HomeViewModel() }
 ) {
+    val state = vm.state
     var permissionStatus by remember { mutableStateOf(SMSPermission.PERMISSION_NOT_REQUESTED) }
     val permissionLauncher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) { granted ->
@@ -48,6 +51,7 @@ fun HomeScreen(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+
                 val granted: Boolean = ContextCompat.checkSelfPermission(
                     LocalContext.current,
                     Manifest.permission.SEND_SMS
@@ -63,10 +67,17 @@ fun HomeScreen(
 
                 Button(
                     modifier = Modifier.padding(top= 32.dp),
-                    onClick = {                             },
+                    onClick = { vm.clickRetrieveNumbers()  },
                     enabled = granted
                 ) {
                     Text(text = "Get all phone numbers and send sms")
+                }
+
+                if (state.loading) {
+                    CircularProgressIndicator()
+                }
+                if(state.phoneNumbers.isNotEmpty()){
+                    Text(text = "All phone numbers retrieved : ${state.phoneNumbers.first().prefix} ${state.phoneNumbers.first().number}")
                 }
             }
         }
