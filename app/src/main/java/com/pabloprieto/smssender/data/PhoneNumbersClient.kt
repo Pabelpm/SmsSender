@@ -6,7 +6,7 @@ import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import retrofit2.create
 import okhttp3.OkHttpClient
 
-object MoviesClient {
+object PhoneNumbersClient {
 
     private val okHttpClient = OkHttpClient.Builder()
         .build()

@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class PhoneNumbersResult(
-    val results: List<PhoneNumberResult>
+    val phoneNumbers: List<PhoneNumberResult>
 )
 
 @Serializable

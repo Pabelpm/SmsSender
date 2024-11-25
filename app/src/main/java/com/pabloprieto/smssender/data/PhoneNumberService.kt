@@ -4,6 +4,6 @@ import retrofit2.http.GET
 
 interface PhoneNumberService {
 
-    @GET("")
+    @GET("/prueba")
     suspend fun getPhoneNumbers(): PhoneNumbersResult
 }
