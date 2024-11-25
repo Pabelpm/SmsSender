@@ -42,7 +42,7 @@ class HomeViewModel : ViewModel() {
             val smsManager: SmsManager = SmsManager.getDefault()
             smsManager.sendTextMessage(phoneNumber, null, msg, null, null)
             Toast.makeText(
-                context, "Message Sent to $phoneNumber",
+                context, "Message: $msg Sent to $phoneNumber",
                 Toast.LENGTH_LONG
             ).show()
         } catch (ex: Exception) {

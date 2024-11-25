@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.telephony.SmsManager
+import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -18,10 +19,12 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,6 +48,8 @@ fun HomeScreen(
             permissionStatus = if (granted) SMSPermission.PERMISSION_GRANTED else SMSPermission.PERMISSION_DENIED
 
         }
+    var text by rememberSaveable { mutableStateOf("") }
+
     SmsSenderTheme {
         Scaffold(modifier = Modifier.fillMaxSize()) {
             Column(
@@ -67,7 +72,14 @@ fun HomeScreen(
                     Text(text = "Request permission")
                 }
                 Text(text = vm.getStringFromEnum(permissionStatus))
-
+                TextField(
+                    modifier = Modifier.padding(top = 30.dp),
+                    value = text,
+                    onValueChange = {
+                        text = it
+                    },
+                    label = { Text("Write some message") }
+                )
                 Button(
                     modifier = Modifier.padding(top= 32.dp),
                     onClick = { vm.clickRetrieveNumbers()  },
@@ -81,7 +93,7 @@ fun HomeScreen(
                 }
                 if(state.phoneNumbers.isNotEmpty()){
                     Text(text = "All phone numbers retrieved : ${state.phoneNumbers.first().prefix} ${state.phoneNumbers.first().number}")
-                    vm.sendSMS(LocalContext.current,state.phoneNumbers.first().number,"Example text")
+                    vm.sendSMS(LocalContext.current,state.phoneNumbers.first().number, text.ifEmpty { "This is a default text" })
                 }
             }
         }
